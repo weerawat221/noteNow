@@ -129,35 +129,6 @@ export default function DocumentDetailPage({ params }) {
 
         {/* Right Header: Toggle Buttons & Google Drive Link */}
         <div className="flex items-center gap-2 flex-shrink-0">
-          <button
-            onClick={handleOpenNotesPanel}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-              activeSidePanel === "notes"
-                ? "bg-indigo-600 text-white shadow-xs"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-            title="ดูโน้ตทั้งหมดในเอกสาร"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
-            <span className="hidden sm:inline">โน้ตทั้งหมด</span>
-          </button>
-
-          <button
-            onClick={handleOpenAiSummary}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-              activeSidePanel === "summary"
-                ? "bg-purple-600 text-white shadow-xs"
-                : "bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200/80"
-            }`}
-            title="สรุปเนื้อหาด้วย AI"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            <span className="hidden sm:inline">สรุปด้วย AI</span>
-          </button>
 
           <div className="h-4 w-[1px] bg-gray-200 hidden sm:block" />
 
@@ -179,9 +150,8 @@ export default function DocumentDetailPage({ params }) {
       <div className="flex-1 flex overflow-hidden relative">
         {/* Left Side: Document Viewer (60% when open, 100% when closed with animation) */}
         <main
-          className={`h-full overflow-hidden flex flex-col transition-all duration-300 ease-in-out ${
-            activeSidePanel ? "w-[60%]" : "w-full"
-          }`}
+          className={`h-full overflow-hidden flex flex-col transition-all duration-300 ease-in-out ${activeSidePanel ? "w-[60%]" : "w-full"
+            }`}
         >
           <PdfViewerAnnotator
             documentId={documentId}
@@ -194,11 +164,10 @@ export default function DocumentDetailPage({ params }) {
 
         {/* Right Side: Notes or AI Summary (40% when open, 0% when closed with slide & fade animation) */}
         <aside
-          className={`h-full bg-white border-l border-gray-200 shadow-xl flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${
-            activeSidePanel
-              ? "w-[40%] opacity-100 translate-x-0"
-              : "w-0 opacity-0 translate-x-full border-l-0 pointer-events-none"
-          }`}
+          className={`h-full bg-white border-l border-gray-200 shadow-xl flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${activeSidePanel
+            ? "w-[40%] opacity-100 translate-x-0"
+            : "w-0 opacity-0 translate-x-full border-l-0 pointer-events-none"
+            }`}
         >
           <div className="w-full h-full min-w-0 overflow-hidden flex flex-col">
             {activeSidePanel === "notes" && (

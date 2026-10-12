@@ -176,16 +176,7 @@ export default function DocumentNotesPanel({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden flex justify-end animate-fade-in">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/30 backdrop-blur-2xs transition-opacity"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      {/* Slide-over Drawer Panel */}
-      <div className="relative w-full max-w-md sm:max-w-lg bg-white h-full shadow-2xl z-10 flex flex-col border-l border-gray-200 animate-slide-left">
+    <div className="w-full h-full bg-white flex flex-col overflow-hidden animate-fade-in">
         {/* Header */}
         <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-indigo-50/60 via-white to-transparent">
           <div className="flex items-center gap-3">
@@ -533,7 +524,6 @@ export default function DocumentNotesPanel({
             })
           )}
         </div>
-      </div>
     </div>
   );
 }

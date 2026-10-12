@@ -287,25 +287,9 @@ export default function AiSummaryPanel({ isOpen, onClose, documentId, documentNa
 
   if (!isOpen || !mounted) return null;
 
-  return createPortal(
-    <div className="fixed inset-0 z-50 overflow-hidden">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity animate-fade-in"
-        onClick={() => {
-          if (!isGenerating) onClose?.();
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Slide-over Container */}
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
-        <aside
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="summary-panel-title"
-          className="w-screen max-w-2xl bg-white shadow-2xl flex flex-col border-l border-gray-200 animate-slide-left overflow-hidden"
-        >
+  return (
+    <>
+      <div className="w-full h-full bg-white flex flex-col overflow-hidden animate-fade-in">
           {/* Header */}
           <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-purple-50/70 via-indigo-50/40 to-white">
             <div className="flex items-center gap-3 min-w-0">
@@ -546,7 +530,6 @@ export default function AiSummaryPanel({ isOpen, onClose, documentId, documentNa
               </div>
             )}
           </div>
-        </aside>
       </div>
 
       {/* Confirmation Modal: Gemini Key Cost Notification */}
@@ -649,8 +632,7 @@ export default function AiSummaryPanel({ isOpen, onClose, documentId, documentNa
           </div>,
           document.body
         )}
-    </div>,
-    document.body
+    </>
   );
 }
 

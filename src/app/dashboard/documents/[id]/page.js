@@ -13,10 +13,29 @@ export default function DocumentDetailPage({ params }) {
   const [doc, setDoc] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isAiSummaryOpen, setIsAiSummaryOpen] = useState(false);
-  const [isNotesPanelOpen, setIsNotesPanelOpen] = useState(false);
+  const [activeSidePanel, setActiveSidePanel] = useState(null); // 'notes' | 'summary' | null
   const [targetPage, setTargetPage] = useState(null);
   const [targetGroup, setTargetGroup] = useState(null);
+
+  const handleOpenAiSummary = () => {
+    setActiveSidePanel((prev) => (prev === "summary" ? null : "summary"));
+  };
+
+  const handleOpenNotesPanel = () => {
+    setActiveSidePanel((prev) => (prev === "notes" ? null : "notes"));
+  };
+
+  const handleCloseSidePanel = () => {
+    setActiveSidePanel(null);
+  };
+
+  // แจ้ง resize event ให้ PDF Canvas และ viewport ปรับตามขนาดที่เปลี่ยนอย่างราบรื่น
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+    }, 320);
+    return () => clearTimeout(timer);
+  }, [activeSidePanel]);
 
   useEffect(() => {
     async function loadDoc() {
@@ -108,8 +127,39 @@ export default function DocumentDetailPage({ params }) {
           </div>
         </div>
 
-        {/* Right Header: Google Drive Link */}
+        {/* Right Header: Toggle Buttons & Google Drive Link */}
         <div className="flex items-center gap-2 flex-shrink-0">
+          <button
+            onClick={handleOpenNotesPanel}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+              activeSidePanel === "notes"
+                ? "bg-indigo-600 text-white shadow-xs"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+            title="ดูโน้ตทั้งหมดในเอกสาร"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <span className="hidden sm:inline">โน้ตทั้งหมด</span>
+          </button>
+
+          <button
+            onClick={handleOpenAiSummary}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+              activeSidePanel === "summary"
+                ? "bg-purple-600 text-white shadow-xs"
+                : "bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200/80"
+            }`}
+            title="สรุปเนื้อหาด้วย AI"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span className="hidden sm:inline">สรุปด้วย AI</span>
+          </button>
+
+          <div className="h-4 w-[1px] bg-gray-200 hidden sm:block" />
 
           <a
             href={doc.google_file_url}
@@ -125,38 +175,58 @@ export default function DocumentDetailPage({ params }) {
         </div>
       </header>
 
-      {/* Main Annotation Workspace */}
-      <main className="flex-1 overflow-hidden">
-        <PdfViewerAnnotator
-          documentId={documentId}
-          onOpenAiSummary={() => setIsAiSummaryOpen(true)}
-          onOpenNotesPanel={() => setIsNotesPanelOpen(true)}
-          targetPage={targetPage}
-          targetGroup={targetGroup}
-        />
-      </main>
+      {/* Main Workspace: Split Screen (Left: 60% Document, Right: 40% Panel) */}
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* Left Side: Document Viewer (60% when open, 100% when closed with animation) */}
+        <main
+          className={`h-full overflow-hidden flex flex-col transition-all duration-300 ease-in-out ${
+            activeSidePanel ? "w-[60%]" : "w-full"
+          }`}
+        >
+          <PdfViewerAnnotator
+            documentId={documentId}
+            onOpenAiSummary={handleOpenAiSummary}
+            onOpenNotesPanel={handleOpenNotesPanel}
+            targetPage={targetPage}
+            targetGroup={targetGroup}
+          />
+        </main>
 
-      {/* Document Notes Side Panel */}
-      <DocumentNotesPanel
-        isOpen={isNotesPanelOpen}
-        onClose={() => setIsNotesPanelOpen(false)}
-        documentId={documentId}
-        documentName={doc.document_name}
-        onJumpToPage={(pageNum) => {
-          setTargetPage(pageNum);
-        }}
-        onSelectGroup={(group) => {
-          setTargetGroup(group ? { ...group, _ts: Date.now() } : null);
-        }}
-      />
+        {/* Right Side: Notes or AI Summary (40% when open, 0% when closed with slide & fade animation) */}
+        <aside
+          className={`h-full bg-white border-l border-gray-200 shadow-xl flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${
+            activeSidePanel
+              ? "w-[40%] opacity-100 translate-x-0"
+              : "w-0 opacity-0 translate-x-full border-l-0 pointer-events-none"
+          }`}
+        >
+          <div className="w-full h-full min-w-0 overflow-hidden flex flex-col">
+            {activeSidePanel === "notes" && (
+              <DocumentNotesPanel
+                isOpen={true}
+                onClose={handleCloseSidePanel}
+                documentId={documentId}
+                documentName={doc.document_name}
+                onJumpToPage={(pageNum) => {
+                  setTargetPage(pageNum);
+                }}
+                onSelectGroup={(group) => {
+                  setTargetGroup(group ? { ...group, _ts: Date.now() } : null);
+                }}
+              />
+            )}
 
-      {/* AI Summary Side Panel */}
-      <AiSummaryPanel
-        isOpen={isAiSummaryOpen}
-        onClose={() => setIsAiSummaryOpen(false)}
-        documentId={documentId}
-        documentName={doc.document_name}
-      />
+            {activeSidePanel === "summary" && (
+              <AiSummaryPanel
+                isOpen={true}
+                onClose={handleCloseSidePanel}
+                documentId={documentId}
+                documentName={doc.document_name}
+              />
+            )}
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }

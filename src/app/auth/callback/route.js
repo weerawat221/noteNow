@@ -11,7 +11,7 @@ import { encrypt } from "@/lib/crypto";
 export async function GET(request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/dashboard/documents";
+  const next = searchParams.get("next") ?? "/dashboard";
 
   if (code) {
     const supabase = await createClient();
@@ -55,7 +55,7 @@ export async function GET(request) {
             .update(updates)
             .eq("auth_id", user.id);
 
-          const defaultNext = userRow?.role === "A" ? "/dashboard" : "/dashboard/documents";
+          const defaultNext = "/dashboard";
           const targetUrl = searchParams.get("next") ?? defaultNext;
           return NextResponse.redirect(`${origin}${targetUrl}`);
         } catch (err) {

@@ -42,6 +42,7 @@ export default function SettingsPage() {
   // ----------------------------------------------------
   const [hasKey, setHasKey] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState(true);
+  const [showApiKeyGuide, setShowApiKeyGuide] = useState(false);
 
   // Form states
   const [showForm, setShowForm] = useState(false);
@@ -872,22 +873,167 @@ export default function SettingsPage() {
               <li>ไม่มีการแสดงค่า Key บนหน้าจอหลังจากบันทึกแล้ว เพื่อป้องกันการถูกบันทึกภาพหน้าจอหรือการดักข้อมูล</li>
               <li>คุณสามารถทดสอบความพร้อมใช้งาน เปลี่ยน หรือลบ Key ออกจากระบบได้ตลอดเวลา</li>
             </ul>
-            <div className="pt-1 flex items-center gap-1.5 text-indigo-600 font-medium">
+            <div className="pt-1 flex flex-wrap items-center gap-2 text-indigo-600 font-medium">
               <span>ยังไม่มี API Key?</span>
               <a
                 href="https://aistudio.google.com/apikey"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline hover:text-indigo-800 inline-flex items-center gap-0.5"
+                className="underline hover:text-indigo-800 inline-flex items-center gap-1 font-semibold"
               >
                 สร้าง API Key ฟรีที่ Google AI Studio
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </a>
-              <span className="text-slate-400">|</span>
-              <span className="text-slate-500">แนะนำให้กำหนด Quota และ IP Restrictions บน Google Cloud Console</span>
+              <span className="text-slate-300">|</span>
+              <button
+                type="button"
+                onClick={() => setShowApiKeyGuide((prev) => !prev)}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition-all cursor-pointer shadow-xs"
+              >
+                <svg className="w-3.5 h-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                {showApiKeyGuide ? "ซ่อนคู่มือการสร้าง Key" : "📖 ดูคู่มือการสร้างและนำมาใช้งาน"}
+              </button>
             </div>
+
+            {/* Comprehensive Step-by-Step API Key Guide */}
+            {showApiKeyGuide && (
+              <div className="mt-3 bg-gradient-to-br from-indigo-50/90 via-purple-50/50 to-white border border-indigo-200/90 rounded-2xl p-5 text-slate-700 shadow-sm space-y-4 animate-in fade-in duration-200">
+                <div className="flex items-center justify-between border-b border-indigo-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 rounded-lg bg-indigo-600 text-white">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </span>
+                    <div>
+                      <h4 className="font-bold text-sm text-slate-900">
+                        คู่มือ: การสร้าง Gemini API Key และนำมาใช้งานใน NoteNow
+                      </h4>
+                      <p className="text-xs text-slate-500">
+                        ทำตามขั้นตอนง่าย ๆ เพียง 2 ส่วนนี้เพื่อเริ่มใช้งานระบบสรุปเนื้อหาเอกสารด้วย AI
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowApiKeyGuide(false)}
+                    className="text-slate-400 hover:text-slate-600 text-xs px-2 py-1 rounded-md hover:bg-slate-200/50 transition-colors cursor-pointer"
+                  >
+                    ✕ ปิดคู่มือ
+                  </button>
+                </div>
+
+                {/* 2-Column or Stacked Steps */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Step 1: Create API Key in Google AI Studio */}
+                  <div className="bg-white/90 border border-indigo-100 rounded-xl p-4 shadow-2xs space-y-3">
+                    <div className="flex items-center gap-2 text-indigo-700 font-bold text-xs uppercase tracking-wider">
+                      <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">1</span>
+                      ขั้นตอนที่ 1: ขอรับ API Key (Google AI Studio)
+                    </div>
+                    <ol className="space-y-2.5 text-xs text-slate-600">
+                      <li className="flex items-start gap-2">
+                        <span className="font-semibold text-indigo-600">1.1</span>
+                        <span>
+                          เปิดเว็บไซต์{" "}
+                          <a
+                            href="https://aistudio.google.com/apikey"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-medium text-indigo-600 underline hover:text-indigo-800"
+                          >
+                            aistudio.google.com/apikey
+                          </a>{" "}
+                          แล้วเข้าสู่ระบบด้วยบัญชี Google ของคุณ
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="font-semibold text-indigo-600">1.2</span>
+                        <span>
+                          คลิกปุ่มสีน้ำเงิน <strong className="text-slate-800">&ldquo;Create API key&rdquo;</strong> (หรือสร้างคีย์ API)
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="font-semibold text-indigo-600">1.3</span>
+                        <span>
+                          เลือกโปรเจกต์ Google Cloud ที่มีอยู่ หรือคลิก <strong className="text-slate-800">&ldquo;Create API key in new project&rdquo;</strong>
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="font-semibold text-indigo-600">1.4</span>
+                        <span>
+                          คลิกไอคอน <strong className="text-slate-800">Copy (คัดลอก)</strong> รหัสคีย์ที่สร้างขึ้น (รหัสจะขึ้นต้นด้วย <code className="bg-slate-100 px-1 py-0.5 rounded text-indigo-700 font-mono">AIzaSy...</code>)
+                        </span>
+                      </li>
+                    </ol>
+                    <div className="pt-1">
+                      <a
+                        href="https://aistudio.google.com/apikey"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-lg transition-colors"
+                      >
+                        เปิด Google AI Studio ตอนนี้
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Step 2: Add into NoteNow */}
+                  <div className="bg-white/90 border border-purple-100 rounded-xl p-4 shadow-2xs space-y-3">
+                    <div className="flex items-center gap-2 text-purple-700 font-bold text-xs uppercase tracking-wider">
+                      <span className="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-xs">2</span>
+                      ขั้นตอนที่ 2: นำมาบันทึกและใช้งานใน NoteNow
+                    </div>
+                    <ol className="space-y-2.5 text-xs text-slate-600">
+                      <li className="flex items-start gap-2">
+                        <span className="font-semibold text-purple-600">2.1</span>
+                        <span>
+                          วางรหัสคีย์ที่คัดลอกมาลงในช่อง <strong className="text-slate-800">&ldquo;กรอก Gemini API Key&rdquo;</strong> ด้านล่างนี้
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="font-semibold text-purple-600">2.2</span>
+                        <span>
+                          กดปุ่ม <strong className="text-slate-800">&ldquo;บันทึก Key&rdquo;</strong> (ระบบจะตรวจสอบสิทธิ์กับ Google และเข้ารหัสความปลอดภัยระดับ <strong className="text-slate-800">AES-256-GCM</strong> อัตโนมัติ)
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="font-semibold text-purple-600">2.3</span>
+                        <span>
+                          สามารถกดปุ่ม <strong className="text-slate-800">&ldquo;ทดสอบ Key&rdquo;</strong> เพื่อยืนยันว่าสถานะเป็น <span className="inline-flex items-center gap-1 font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">ใช้งานได้ปกติ</span>
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="font-semibold text-purple-600">2.4</span>
+                        <span>
+                          เปิดเอกสาร PDF ใดก็ได้ในเมนูเอกสาร แล้วกดปุ่ม <strong className="text-indigo-700">&ldquo;✨ สรุปเนื้อหาด้วย AI&rdquo;</strong> เพื่อเริ่มใช้งานได้ทันที!
+                        </span>
+                      </li>
+                    </ol>
+                  </div>
+                </div>
+
+                {/* Helpful Tips Banner */}
+                <div className="bg-amber-50/80 border border-amber-200/80 rounded-xl p-3 text-xs text-amber-900 flex items-start gap-2.5">
+                  <span className="text-base shrink-0">💡</span>
+                  <div className="space-y-0.5">
+                    <p className="font-semibold">ข้อควรรู้เกี่ยวกับค่าบริการและความปลอดภัย:</p>
+                    <p className="text-amber-800 leading-relaxed">
+                      • บัญชี Google ทั่วไปได้รับโควต้าใช้งาน <strong>ฟรี (Free Tier)</strong> ในระดับที่เพียงพอสำหรับการสรุปเอกสารประจำวันโดยไม่มีค่าใช้จ่าย
+                      <br />
+                      • คีย์ของคุณจะถูกเข้ารหัสแบบสองชั้นและผูกกับบัญชีของคุณโดยเฉพาะ ผู้ดูแลระบบหรือผู้ใช้อื่นไม่สามารถมองเห็นคีย์ได้ในทุกกรณี
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Test Results Display */}

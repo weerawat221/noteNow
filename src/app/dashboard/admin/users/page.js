@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
@@ -12,15 +12,6 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all"); // "all" | "active" | "suspended" | "has_key" | "no_key"
 
-  // Edit User Modal State
-  const [editingUser, setEditingUser] = useState(null);
-  const [editFirstName, setEditFirstName] = useState("");
-  const [editLastName, setEditLastName] = useState("");
-  const [editProfileImage, setEditProfileImage] = useState("");
-  const [editIsSuspended, setEditIsSuspended] = useState(false);
-  const [savingUser, setSavingUser] = useState(false);
-  const [editError, setEditError] = useState("");
-
   // Key Test Modal State
   const [testingKeyUserId, setTestingKeyUserId] = useState(null);
   const [keyTestResult, setKeyTestResult] = useState(null); // { status, message, user }
@@ -31,8 +22,6 @@ export default function AdminUsersPage() {
 
   // Success Notification
   const [toast, setToast] = useState(null);
-
-  const fileInputRef = useRef(null);
 
   useEffect(() => {
     checkAdminAndFetchUsers();
@@ -72,79 +61,7 @@ export default function AdminUsersPage() {
     setTimeout(() => setToast(null), 3500);
   }
 
-  // เปิด Modal แก้ไขข้อมูลผู้ใช้
-  function openEditModal(u) {
-    setEditingUser(u);
-    setEditFirstName(u.first_name || "");
-    setEditLastName(u.last_name || "");
-    setEditProfileImage(u.profile_image || "");
-    setEditIsSuspended(Boolean(u.is_suspended));
-    setEditError("");
-  }
 
-  // บันทึกการแก้ไขข้อมูลผู้ใช้
-  async function handleSaveUser(e) {
-    e?.preventDefault();
-    if (!editFirstName.trim()) {
-      setEditError("กรุณากรอกชื่อ (ห้ามเว้นว่าง)");
-      return;
-    }
-
-    setSavingUser(true);
-    setEditError("");
-
-    try {
-      const res = await fetch(`/api/admin/users/${editingUser.user_id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          first_name: editFirstName.trim(),
-          last_name: editLastName.trim(),
-          profile_image: editProfileImage,
-          is_suspended: editIsSuspended,
-        }),
-      });
-
-      const json = await res.json();
-      if (!res.ok) {
-        setEditError(json.error || "ไม่สามารถบันทึกข้อมูลได้");
-        return;
-      }
-
-      setUsers((prev) =>
-        prev.map((u) => (u.user_id === editingUser.user_id ? { ...u, ...json.user } : u))
-      );
-
-      setEditingUser(null);
-      showToast(json.message || "บันทึกข้อมูลสำเร็จ");
-    } catch {
-      setEditError("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
-    } finally {
-      setSavingUser(false);
-    }
-  }
-
-  // อัปโหลดไฟล์รูปภาพแปลงเป็น Data URI
-  function handleImageUpload(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      setEditError("กรุณาเลือกไฟล์รูปภาพเท่านั้น (JPG, PNG, WEBP, GIF)");
-      return;
-    }
-    if (file.size > 2 * 1024 * 1024) {
-      setEditError("ขนาดรูปภาพต้องไม่เกิน 2 MB");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setEditProfileImage(event.target.result);
-      setEditError("");
-    };
-    reader.readAsDataURL(file);
-  }
 
   // สลับสถานะระงับ/ยกเลิกระงับ
   async function toggleSuspend(targetUser) {
@@ -469,14 +386,6 @@ export default function AdminUsersPage() {
                       {/* Action Buttons */}
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          {/* Edit button */}
-                          <button
-                            onClick={() => openEditModal(u)}
-                            className="px-2.5 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg border border-indigo-200 transition-colors"
-                          >
-                            แก้ไข
-                          </button>
-
                           {/* Suspend / Unsuspend toggle button */}
                           {!isCurrentAdmin ? (
                             <button
@@ -504,189 +413,6 @@ export default function AdminUsersPage() {
           </div>
         )}
       </div>
-
-      {/* ========================================================
-          Modal 1: แก้ไขข้อมูลส่วนตัวผู้ใช้ (Edit User Modal)
-         ======================================================== */}
-      {editingUser && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
-          onClick={(e) => {
-            if (e.target === e.currentTarget && !savingUser) setEditingUser(null);
-          }}
-        >
-          <div
-            className="bg-white rounded-2xl w-full max-w-lg shadow-2xl border border-gray-100 overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <span className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm font-bold">
-                  ✏️
-                </span>
-                <div>
-                  <h3 className="text-base font-bold text-gray-900">
-                    แก้ไขข้อมูลผู้ใช้ #{editingUser.user_id}
-                  </h3>
-                  <p className="text-xs text-gray-500 font-mono">
-                    {editingUser.email}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setEditingUser(null)}
-                disabled={savingUser}
-                className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveUser} className="p-6 space-y-4">
-              {editError && (
-                <div className="p-3 rounded-xl bg-rose-50 text-rose-700 text-xs">
-                  {editError}
-                </div>
-              )}
-
-              {/* Avatar Upload / URL */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-                  รูปโปรไฟล์:
-                </label>
-                <div className="flex items-center gap-4">
-                  {editProfileImage ? (
-                    <img
-                      src={editProfileImage}
-                      alt="avatar preview"
-                      className="w-14 h-14 rounded-full object-cover border border-gray-200 shadow-xs flex-shrink-0"
-                    />
-                  ) : (
-                    <div className="w-14 h-14 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center text-xl font-bold flex-shrink-0">
-                      👤
-                    </div>
-                  )}
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="px-3 py-1.5 rounded-xl border border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-2xs"
-                      >
-                        📁 อัปโหลดรูปใหม่
-                      </button>
-                      {editProfileImage && (
-                        <button
-                          type="button"
-                          onClick={() => setEditProfileImage("")}
-                          className="px-3 py-1.5 rounded-xl text-xs font-medium text-rose-600 hover:bg-rose-50 transition-colors"
-                        >
-                          ลบรูป
-                        </button>
-                      )}
-                    </div>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                    <input
-                      type="text"
-                      value={editProfileImage}
-                      onChange={(e) => setEditProfileImage(e.target.value)}
-                      placeholder="หรือใส่ URL รูปภาพ (https://...)"
-                      className="w-full px-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Name Fields */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    ชื่อ (First Name) *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editFirstName}
-                    onChange={(e) => setEditFirstName(e.target.value)}
-                    placeholder="ชื่อผู้ใช้"
-                    className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    นามสกุล (Last Name)
-                  </label>
-                  <input
-                    type="text"
-                    value={editLastName}
-                    onChange={(e) => setEditLastName(e.target.value)}
-                    placeholder="นามสกุล"
-                    className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                  />
-                </div>
-              </div>
-
-              {/* Suspension Switch (Prevent self suspension) */}
-              {currentUser?.id !== editingUser.auth_id && (
-                <div className="pt-2 border-t border-gray-100">
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-200">
-                    <div>
-                      <p className="text-xs font-semibold text-gray-900">
-                        ระงับการเข้าใช้งานระบบ (Account Suspension)
-                      </p>
-                      <p className="text-[11px] text-gray-500">
-                        เมื่อเปิดใช้งาน ผู้ใช้จะไม่สามารถเข้าสู่ระบบหรือใช้งานได้
-                      </p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={editIsSuspended}
-                        onChange={(e) => setEditIsSuspended(e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-600"></div>
-                    </label>
-                  </div>
-                </div>
-              )}
-
-              {/* Buttons */}
-              <div className="flex items-center justify-end gap-2.5 pt-3">
-                <button
-                  type="button"
-                  disabled={savingUser}
-                  onClick={() => setEditingUser(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors"
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  type="submit"
-                  disabled={savingUser || !editFirstName.trim()}
-                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-xs transition-all disabled:opacity-50 flex items-center gap-2"
-                >
-                  {savingUser ? (
-                    <>
-                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      กำลังบันทึก...
-                    </>
-                  ) : (
-                    "บันทึกการเปลี่ยนแปลง"
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* ========================================================
           Modal 2: ยืนยันการระงับ / ปลดระงับผู้ใช้

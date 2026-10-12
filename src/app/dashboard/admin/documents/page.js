@@ -24,11 +24,6 @@ export default function AdminDocumentsPage() {
   const [summaryFilter, setSummaryFilter] = useState("all"); // "all" | "summarized" | "not_summarized"
   const [sortOption, setSortOption] = useState("note_date_desc"); // "note_date_desc" | "note_date_asc" | "date_desc" | "date_asc" | "name_asc" | "name_desc" | "size_desc" | "size_asc"
 
-  // Edit Document Modal State
-  const [editingDoc, setEditingDoc] = useState(null);
-  const [editDocName, setEditDocName] = useState("");
-  const [savingDoc, setSavingDoc] = useState(false);
-  const [docError, setDocError] = useState("");
 
   // Delete Document Modal State
   const [deletingDoc, setDeletingDoc] = useState(null);
@@ -84,52 +79,6 @@ export default function AdminDocumentsPage() {
     setTimeout(() => setToast(null), 3500);
   }
 
-  // เปิด Modal แก้ไขชื่อเอกสาร
-  function openEditDocModal(doc) {
-    setEditingDoc(doc);
-    setEditDocName(doc.document_name);
-    setDocError("");
-  }
-
-  // บันทึกชื่อเอกสารใหม่
-  async function handleSaveDocName(e) {
-    e?.preventDefault();
-    const trimmed = editDocName.trim();
-    if (!trimmed) {
-      setDocError("กรุณาระบุชื่อเอกสาร (ห้ามเว้นว่าง)");
-      return;
-    }
-
-    setSavingDoc(true);
-    setDocError("");
-
-    try {
-      const res = await fetch(`/api/admin/documents/${editingDoc.document_id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ document_name: trimmed }),
-      });
-
-      const json = await res.json();
-      if (!res.ok) {
-        setDocError(json.error || "ไม่สามารถบันทึกชื่อเอกสารได้");
-        return;
-      }
-
-      setDocuments((prev) =>
-        prev.map((d) =>
-          d.document_id === editingDoc.document_id ? { ...d, document_name: trimmed } : d
-        )
-      );
-
-      setEditingDoc(null);
-      showToast("แก้ไขชื่อเอกสารสำเร็จ");
-    } catch {
-      setDocError("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
-    } finally {
-      setSavingDoc(false);
-    }
-  }
 
   // ลบการเชื่อมต่อเอกสารออกจากระบบ
   async function handleDeleteDocument() {
@@ -495,29 +444,6 @@ export default function AdminDocumentsPage() {
                       {/* Actions */}
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          {/* Edit Name Button */}
-                          <button
-                            onClick={() => openEditDocModal(doc)}
-                            className="px-2.5 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg border border-indigo-200 transition-colors"
-                            title="แก้ไขชื่อเอกสาร"
-                          >
-                            แก้ไขชื่อ
-                          </button>
-
-                          {/* Open in Google Drive */}
-                          {doc.google_file_url && (
-                            <a
-                              href={doc.google_file_url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="p-1 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                              title="เปิดใน Google Drive"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                              </svg>
-                            </a>
-                          )}
 
                           {/* Delete/Unlink Button */}
                           <button
@@ -538,88 +464,6 @@ export default function AdminDocumentsPage() {
         )}
       </div>
 
-      {/* ========================================================
-          Modal 1: แก้ไขชื่อเอกสาร (Edit Document Name Modal)
-         ======================================================== */}
-      {editingDoc && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
-          onClick={(e) => {
-            if (e.target === e.currentTarget && !savingDoc) setEditingDoc(null);
-          }}
-        >
-          <div
-            className="bg-white rounded-2xl w-full max-w-md shadow-2xl border border-gray-100 overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <span className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm font-bold">
-                  ✏️
-                </span>
-                <h3 className="text-base font-bold text-gray-900">
-                  แก้ไขชื่อเอกสาร
-                </h3>
-              </div>
-              <button
-                onClick={() => setEditingDoc(null)}
-                disabled={savingDoc}
-                className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveDocName} className="p-6 space-y-4">
-              {docError && (
-                <div className="p-3 rounded-xl bg-rose-50 text-rose-700 text-xs">
-                  {docError}
-                </div>
-              )}
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  ชื่อเอกสาร:
-                </label>
-                <input
-                  type="text"
-                  required
-                  autoFocus
-                  value={editDocName}
-                  onChange={(e) => setEditDocName(e.target.value)}
-                  placeholder="เช่น เอกสารประกอบการเรียน.pdf"
-                  className="w-full px-3.5 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2.5 pt-2">
-                <button
-                  type="button"
-                  disabled={savingDoc}
-                  onClick={() => setEditingDoc(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors"
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  type="submit"
-                  disabled={savingDoc || !editDocName.trim()}
-                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-xs transition-all disabled:opacity-50 flex items-center gap-2"
-                >
-                  {savingDoc ? (
-                    <>
-                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      กำลังบันทึก...
-                    </>
-                  ) : (
-                    "บันทึกชื่อเอกสาร"
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* ========================================================
           Modal 2: ยืนยันการลบการเชื่อมต่อเอกสาร (Unlink Document Modal)

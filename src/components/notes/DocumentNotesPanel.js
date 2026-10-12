@@ -22,6 +22,7 @@ export default function DocumentNotesPanel({
   onSelectGroup,
   externalNotes = null,
   onNotesUpdated,
+  embedded = false,
 }) {
   const [rawNotes, setRawNotes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -175,8 +176,8 @@ export default function DocumentNotesPanel({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="w-full h-full bg-white flex flex-col overflow-hidden animate-fade-in">
+  const panelContent = (
+    <div className={`relative w-full bg-white h-full flex flex-col ${embedded ? "overflow-hidden" : "max-w-md sm:max-w-lg shadow-2xl z-10 border-l border-gray-200 animate-slide-left"}`}>
         {/* Header */}
         <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-indigo-50/60 via-white to-transparent">
           <div className="flex items-center gap-3">
@@ -524,6 +525,22 @@ export default function DocumentNotesPanel({
             })
           )}
         </div>
+      </div>
+  );
+
+  if (embedded) {
+    return panelContent;
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-hidden flex justify-end animate-fade-in">
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/30 backdrop-blur-2xs transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      {panelContent}
     </div>
   );
 }

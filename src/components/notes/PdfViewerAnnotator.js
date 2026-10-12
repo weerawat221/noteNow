@@ -8,6 +8,7 @@ const HIGHLIGHT_COLORS = ["#fde047", "#86efac", "#93c5fd", "#f472b6", "#fed7aa"]
 
 export default function PdfViewerAnnotator({
   documentId,
+  activePanel = null,
   onOpenAiSummary,
   onOpenNotesPanel,
   onNotesUpdated,
@@ -1477,8 +1478,12 @@ export default function PdfViewerAnnotator({
           {onOpenNotesPanel && (
             <button
               onClick={onOpenNotesPanel}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 text-xs font-semibold shadow-2xs transition-all hover:border-indigo-300 cursor-pointer"
-              title="ดูโน้ตทั้งหมดในเอกสาร"
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold shadow-2xs transition-all cursor-pointer ${
+                activePanel === "notes"
+                  ? "bg-indigo-50 border-indigo-400 text-indigo-700 ring-2 ring-indigo-200"
+                  : "bg-white hover:bg-gray-50 border-gray-200 text-gray-700 hover:border-indigo-300"
+              }`}
+              title={activePanel === "notes" ? "ปิดแผงโน้ตทั้งหมด" : "ดูโน้ตทั้งหมดในเอกสาร (แบ่งครึ่งจอ)"}
               id="btn-open-notes-panel-toolbar"
             >
               <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1491,7 +1496,12 @@ export default function PdfViewerAnnotator({
           {/* AI Summary Button */}
           <button
             onClick={onOpenAiSummary}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold shadow-sm transition-all hover:shadow"
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all hover:shadow cursor-pointer ${
+              activePanel === "summary"
+                ? "bg-purple-800 text-white ring-2 ring-purple-300"
+                : "bg-purple-600 hover:bg-purple-700 text-white"
+            }`}
+            title={activePanel === "summary" ? "ปิดแผงสรุป AI" : "เปิดแผงสรุปเนื้อหาด้วย AI (แบ่งครึ่งจอ)"}
             id="btn-ai-summary"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

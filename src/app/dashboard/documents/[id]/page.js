@@ -13,29 +13,18 @@ export default function DocumentDetailPage({ params }) {
   const [doc, setDoc] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeSidePanel, setActiveSidePanel] = useState(null); // 'notes' | 'summary' | null
+  // Active panel: null | "notes" | "summary"
+  const [activePanel, setActivePanel] = useState(null);
   const [targetPage, setTargetPage] = useState(null);
   const [targetGroup, setTargetGroup] = useState(null);
 
-  const handleOpenAiSummary = () => {
-    setActiveSidePanel((prev) => (prev === "summary" ? null : "summary"));
-  };
-
-  const handleOpenNotesPanel = () => {
-    setActiveSidePanel((prev) => (prev === "notes" ? null : "notes"));
-  };
-
-  const handleCloseSidePanel = () => {
-    setActiveSidePanel(null);
-  };
-
-  // แจ้ง resize event ให้ PDF Canvas และ viewport ปรับตามขนาดที่เปลี่ยนอย่างราบรื่น
+  // Trigger resize event after panel transition to keep canvas & scroll alignment smooth
   useEffect(() => {
     const timer = setTimeout(() => {
       window.dispatchEvent(new Event("resize"));
     }, 320);
     return () => clearTimeout(timer);
-  }, [activeSidePanel]);
+  }, [activePanel]);
 
   useEffect(() => {
     async function loadDoc() {
@@ -127,10 +116,8 @@ export default function DocumentDetailPage({ params }) {
           </div>
         </div>
 
-        {/* Right Header: Toggle Buttons & Google Drive Link */}
+        {/* Right Header: Google Drive Link */}
         <div className="flex items-center gap-2 flex-shrink-0">
-
-          <div className="h-4 w-[1px] bg-gray-200 hidden sm:block" />
 
           <a
             href={doc.google_file_url}
@@ -146,56 +133,71 @@ export default function DocumentDetailPage({ params }) {
         </div>
       </header>
 
-      {/* Main Workspace: Split Screen (Left: 60% Document, Right: 40% Panel) */}
-      <div className="flex-1 flex overflow-hidden relative">
-        {/* Left Side: Document Viewer (60% when open, 100% when closed with animation) */}
-        <main
-          className={`h-full overflow-hidden flex flex-col transition-all duration-300 ease-in-out ${activeSidePanel ? "w-[60%]" : "w-full"
-            }`}
+      {/* Main Annotation Workspace (Split Screen 60% / 40%) */}
+      <main className="flex-1 flex overflow-hidden relative">
+        {/* Left: Document View (60% when panel open, 100% when closed) */}
+        <section
+          className={`h-full overflow-hidden transition-[width,flex] duration-300 ease-in-out ${
+            activePanel ? "w-full lg:w-[60%] flex-none" : "w-full flex-1"
+          }`}
+          aria-label="พื้นที่แสดงเอกสาร PDF และเครื่องมือจดบันทึก"
         >
           <PdfViewerAnnotator
             documentId={documentId}
-            onOpenAiSummary={handleOpenAiSummary}
-            onOpenNotesPanel={handleOpenNotesPanel}
+            activePanel={activePanel}
+            onOpenAiSummary={() =>
+              setActivePanel((prev) => (prev === "summary" ? null : "summary"))
+            }
+            onOpenNotesPanel={() =>
+              setActivePanel((prev) => (prev === "notes" ? null : "notes"))
+            }
             targetPage={targetPage}
             targetGroup={targetGroup}
           />
-        </main>
+        </section>
 
-        {/* Right Side: Notes or AI Summary (40% when open, 0% when closed with slide & fade animation) */}
+        {/* Right: Side Panel (40% when panel open, 0% when closed) */}
         <aside
-          className={`h-full bg-white border-l border-gray-200 shadow-xl flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${activeSidePanel
-            ? "w-[40%] opacity-100 translate-x-0"
-            : "w-0 opacity-0 translate-x-full border-l-0 pointer-events-none"
-            }`}
+          className={`h-full bg-white border-l border-gray-200 overflow-hidden transition-all duration-300 ease-in-out z-20 ${
+            activePanel
+              ? "w-full lg:w-[40%] flex-none opacity-100 translate-x-0 shadow-xl lg:shadow-none"
+              : "w-0 max-w-0 opacity-0 pointer-events-none translate-x-full border-l-0"
+          }`}
+          aria-label={
+            activePanel === "notes"
+              ? "แผงแสดงโน้ตทั้งหมด"
+              : activePanel === "summary"
+              ? "แผงสรุปเนื้อหาด้วย AI"
+              : "แผงเครื่องมือด้านข้าง"
+          }
         >
-          <div className="w-full h-full min-w-0 overflow-hidden flex flex-col">
-            {activeSidePanel === "notes" && (
-              <DocumentNotesPanel
-                isOpen={true}
-                onClose={handleCloseSidePanel}
-                documentId={documentId}
-                documentName={doc.document_name}
-                onJumpToPage={(pageNum) => {
-                  setTargetPage(pageNum);
-                }}
-                onSelectGroup={(group) => {
-                  setTargetGroup(group ? { ...group, _ts: Date.now() } : null);
-                }}
-              />
-            )}
+          {activePanel === "notes" && (
+            <DocumentNotesPanel
+              embedded
+              isOpen={true}
+              onClose={() => setActivePanel(null)}
+              documentId={documentId}
+              documentName={doc.document_name}
+              onJumpToPage={(pageNum) => {
+                setTargetPage(pageNum);
+              }}
+              onSelectGroup={(group) => {
+                setTargetGroup(group ? { ...group, _ts: Date.now() } : null);
+              }}
+            />
+          )}
 
-            {activeSidePanel === "summary" && (
-              <AiSummaryPanel
-                isOpen={true}
-                onClose={handleCloseSidePanel}
-                documentId={documentId}
-                documentName={doc.document_name}
-              />
-            )}
-          </div>
+          {activePanel === "summary" && (
+            <AiSummaryPanel
+              embedded
+              isOpen={true}
+              onClose={() => setActivePanel(null)}
+              documentId={documentId}
+              documentName={doc.document_name}
+            />
+          )}
         </aside>
-      </div>
+      </main>
     </div>
   );
 }

@@ -15,7 +15,7 @@ import ReactMarkdown from "react-markdown";
  * - ประวัติการสรุป (History Drawer): เปิดดูและลบสรุปเก่าได้
  * - หน้าต่างยืนยันค่าใช้จ่ายพร้อมตัวเลือก "ไม่ต้องแสดงอีก"
  */
-export default function AiSummaryPanel({ isOpen, onClose, documentId, documentName }) {
+export default function AiSummaryPanel({ isOpen, onClose, documentId, documentName, embedded = false }) {
   const [mounted, setMounted] = useState(false);
 
   // ข้อมูลสรุปและสถานะ
@@ -287,9 +287,16 @@ export default function AiSummaryPanel({ isOpen, onClose, documentId, documentNa
 
   if (!isOpen || !mounted) return null;
 
-  return (
-    <>
-      <div className="w-full h-full bg-white flex flex-col overflow-hidden animate-fade-in">
+  const panelAside = (
+    <aside
+      role="region"
+      aria-labelledby="summary-panel-title"
+      className={`bg-white flex flex-col overflow-hidden ${
+        embedded
+          ? "w-full h-full"
+          : "w-screen max-w-2xl shadow-2xl border-l border-gray-200 animate-slide-left"
+      }`}
+    >
           {/* Header */}
           <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-purple-50/70 via-indigo-50/40 to-white">
             <div className="flex items-center gap-3 min-w-0">
@@ -530,8 +537,11 @@ export default function AiSummaryPanel({ isOpen, onClose, documentId, documentNa
               </div>
             )}
           </div>
-      </div>
+        </aside>
+  );
 
+  const modals = (
+    <>
       {/* Confirmation Modal: Gemini Key Cost Notification */}
       {showCostConfirm &&
         createPortal(
@@ -633,6 +643,35 @@ export default function AiSummaryPanel({ isOpen, onClose, documentId, documentNa
           document.body
         )}
     </>
+  );
+
+  if (embedded) {
+    return (
+      <div className="w-full h-full flex flex-col overflow-hidden">
+        {panelAside}
+        {modals}
+      </div>
+    );
+  }
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 overflow-hidden">
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity animate-fade-in"
+        onClick={() => {
+          if (!isGenerating) onClose?.();
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Slide-over Container */}
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
+        {panelAside}
+      </div>
+      {modals}
+    </div>,
+    document.body
   );
 }
 

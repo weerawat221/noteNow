@@ -5,10 +5,10 @@ export const metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 py-16 px-6 sm:px-12 lg:px-24">
-      <div className="max-w-4xl mx-auto space-y-8 bg-slate-900/60 p-8 sm:p-12 rounded-2xl border border-slate-800 backdrop-blur-md">
+    <div className="min-h-screen bg-slate-950 text-slate-200 py-8 sm:py-16 px-4 sm:px-12 lg:px-24">
+      <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 bg-slate-900/60 p-5 sm:p-12 rounded-2xl border border-slate-800 backdrop-blur-md">
         <header className="border-b border-slate-800 pb-6">
-          <h1 className="text-3xl font-bold text-white mb-2">นโยบายความเป็นส่วนตัว (Privacy Policy)</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">นโยบายความเป็นส่วนตัว (Privacy Policy)</h1>
           <p className="text-sm text-slate-400">อัปเดตล่าสุด: 6 ตุลาคม 2026</p>
         </header>
 

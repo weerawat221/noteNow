@@ -469,11 +469,11 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8 animate-fade-in max-w-4xl space-y-8">
+    <div className="p-4 sm:p-6 lg:p-8 animate-fade-in max-w-4xl space-y-6 sm:space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">ตั้งค่า</h1>
-        <p className="text-gray-500 mt-1 text-sm">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">ตั้งค่า</h1>
+        <p className="text-gray-500 mt-1 text-xs sm:text-sm">
           จัดการข้อมูลส่วนตัวของผู้ใช้ และการเชื่อมต่อ Gemini API สำหรับการสรุปเนื้อหาเอกสาร
         </p>
       </div>

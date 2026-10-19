@@ -91,6 +91,7 @@ export default function Sidebar({ user }) {
   const pathname = usePathname();
   const router = useRouter();
   const [imageError, setImageError] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const avatarUrl = user?.profile_image || user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
   const fullName =
@@ -101,6 +102,20 @@ export default function Sidebar({ user }) {
   useEffect(() => {
     setImageError(false);
   }, [avatarUrl]);
+
+  // ปิด mobile drawer อัตโนมัติเมื่อเปลี่ยนหน้า
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  // ปิด mobile drawer เมื่อกดปุ่ม Escape
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === "Escape") setMobileOpen(false);
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   async function handleSignOut() {
     const supabase = createClient();
@@ -116,16 +131,17 @@ export default function Sidebar({ user }) {
 
   const navItems = user?.role === "A" ? adminNavItems : studentNavItems;
 
-  return (
-    <aside
-      className="w-64 flex flex-col h-full"
-      style={{ background: "var(--surface-sidebar)" }}
-    >
-      {/* Logo */}
-      <div className="p-6 border-b border-white/10">
-        <Link href="/dashboard" className="flex items-center gap-3">
+  const renderNavContent = (isMobileDrawer = false) => (
+    <>
+      {/* Logo & Header */}
+      <div className="p-5 sm:p-6 border-b border-white/10 flex items-center justify-between">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-3"
+          onClick={() => isMobileDrawer && setMobileOpen(false)}
+        >
           <div
-            className="w-9 h-9 rounded-lg flex items-center justify-center shadow-sm"
+            className="w-9 h-9 rounded-lg flex items-center justify-center shadow-sm shrink-0"
             style={{ background: "linear-gradient(135deg, #818cf8, #6366f1)" }}
           >
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,9 +158,20 @@ export default function Sidebar({ user }) {
             )}
           </div>
         </Link>
+        {isMobileDrawer && (
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+            aria-label="ปิดเมนู"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
       </div>
 
-      {/* Navigation */}
+      {/* Navigation Links */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const isActive =
@@ -156,6 +183,7 @@ export default function Sidebar({ user }) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => isMobileDrawer && setMobileOpen(false)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                 isActive
                   ? "bg-white/15 text-white shadow-sm"
@@ -169,7 +197,7 @@ export default function Sidebar({ user }) {
         })}
       </nav>
 
-      {/* User info + Logout */}
+      {/* User Info & Logout */}
       <div className="p-4 border-t border-white/10">
         <div className="flex items-center gap-3 mb-3">
           {avatarUrl && !imageError ? (
@@ -178,10 +206,10 @@ export default function Sidebar({ user }) {
               alt="avatar"
               referrerPolicy="no-referrer"
               onError={() => setImageError(true)}
-              className="w-8 h-8 rounded-full object-cover border border-white/20 shadow-xs flex-shrink-0"
+              className="w-8 h-8 rounded-full object-cover border border-white/20 shadow-xs shrink-0"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold border border-white/20 shadow-xs flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold border border-white/20 shadow-xs shrink-0">
               {fullName?.[0]?.toUpperCase() ||
                 user?.email?.[0]?.toUpperCase() ||
                 "U"}
@@ -193,7 +221,7 @@ export default function Sidebar({ user }) {
                 {fullName}
               </p>
               {user?.role === "A" && (
-                <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-indigo-500/30 text-indigo-300 border border-indigo-400/30 flex-shrink-0">
+                <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-indigo-500/30 text-indigo-300 border border-indigo-400/30 shrink-0">
                   ADMIN
                 </span>
               )}
@@ -203,7 +231,7 @@ export default function Sidebar({ user }) {
         </div>
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-200"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-200 cursor-pointer"
           id="btn-logout"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -213,6 +241,94 @@ export default function Sidebar({ user }) {
           ออกจากระบบ
         </button>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile / Tablet Top Navigation Header (visible only on < lg) */}
+      <header
+        className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0 z-30"
+        style={{ background: "var(--surface-sidebar)" }}
+      >
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="p-1.5 rounded-lg text-gray-200 hover:text-white hover:bg-white/10 transition-colors focus:outline-none"
+            aria-label="เปิดเมนูนำทาง"
+            id="btn-mobile-menu-toggle"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <div
+              className="w-7 h-7 rounded-lg flex items-center justify-center shadow-xs"
+              style={{ background: "linear-gradient(135deg, #818cf8, #6366f1)" }}
+            >
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </div>
+            <span className="text-white font-semibold text-base">NoteNow</span>
+            {user?.role === "A" && (
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                ADMIN
+              </span>
+            )}
+          </Link>
+        </div>
+
+        {/* User Mini Avatar on Mobile Topbar */}
+        <Link href="/dashboard/settings" className="flex items-center gap-2">
+          {avatarUrl && !imageError ? (
+            <img
+              src={avatarUrl}
+              alt="avatar"
+              referrerPolicy="no-referrer"
+              onError={() => setImageError(true)}
+              className="w-7 h-7 rounded-full object-cover border border-white/20 shadow-xs shrink-0"
+            />
+          ) : (
+            <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-[10px] font-bold border border-white/20 shadow-xs shrink-0">
+              {fullName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
+            </div>
+          )}
+        </Link>
+      </header>
+
+      {/* Mobile Drawer Backdrop & Slide-over Navigation (< lg) */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 overflow-hidden">
+          {/* Backdrop Overlay */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
+            onClick={() => setMobileOpen(false)}
+            aria-hidden="true"
+          />
+
+          {/* Drawer Sidebar */}
+          <aside
+            className="fixed inset-y-0 left-0 w-72 max-w-[85vw] flex flex-col h-full shadow-2xl z-50 animate-slide-left"
+            style={{ background: "var(--surface-sidebar)" }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="เมนูนำทางหลัก"
+          >
+            {renderNavContent(true)}
+          </aside>
+        </div>
+      )}
+
+      {/* Desktop Docked Sidebar (>= lg) */}
+      <aside
+        className="hidden lg:flex w-64 flex-col h-full shrink-0"
+        style={{ background: "var(--surface-sidebar)" }}
+      >
+        {renderNavContent(false)}
+      </aside>
+    </>
   );
 }

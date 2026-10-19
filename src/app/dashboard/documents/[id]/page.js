@@ -133,9 +133,9 @@ export default function DocumentDetailPage({ params }) {
         </div>
       </header>
 
-      {/* Main Annotation Workspace (Split Screen 60% / 40%) */}
+      {/* Main Annotation Workspace (Split Screen 60% / 40% on desktop, overlay on tablet/mobile) */}
       <main className="flex-1 flex overflow-hidden relative">
-        {/* Left: Document View (60% when panel open, 100% when closed) */}
+        {/* Left: Document View (60% when panel open on desktop, 100% on mobile or when closed) */}
         <section
           className={`h-full overflow-hidden transition-[width,flex] duration-300 ease-in-out ${
             activePanel ? "w-full lg:w-[60%] flex-none" : "w-full flex-1"
@@ -156,12 +156,21 @@ export default function DocumentDetailPage({ params }) {
           />
         </section>
 
-        {/* Right: Side Panel (40% when panel open, 0% when closed) */}
+        {/* Mobile / Tablet Backdrop when panel is active (< lg) */}
+        {activePanel && (
+          <div
+            className="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-xs z-30 transition-opacity animate-fade-in"
+            onClick={() => setActivePanel(null)}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Right: Side Panel (40% on desktop, slide-over drawer on mobile/tablet) */}
         <aside
-          className={`h-full bg-white border-l border-gray-200 overflow-hidden transition-all duration-300 ease-in-out z-20 ${
+          className={`h-full bg-white border-l border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${
             activePanel
-              ? "w-full lg:w-[40%] flex-none opacity-100 translate-x-0 shadow-xl lg:shadow-none"
-              : "w-0 max-w-0 opacity-0 pointer-events-none translate-x-full border-l-0"
+              ? "fixed inset-y-0 right-0 w-full sm:w-[460px] md:w-[500px] lg:relative lg:w-[40%] flex-none opacity-100 translate-x-0 shadow-2xl lg:shadow-none z-40 lg:z-20"
+              : "fixed lg:relative inset-y-0 right-0 w-0 max-w-0 opacity-0 pointer-events-none translate-x-full border-l-0 z-40 lg:z-20"
           }`}
           aria-label={
             activePanel === "notes"

@@ -106,7 +106,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="p-6 lg:p-8">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
         <div className="animate-pulse space-y-6">
           {/* Header skeleton */}
           <div>
@@ -115,7 +115,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Stats skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {[1, 2, 3].map((i) => (
               <div key={i} className="card p-5">
                 <div className="w-10 h-10 bg-gray-100 rounded-lg mb-3" />
@@ -126,9 +126,9 @@ export default function DashboardPage() {
           </div>
 
           {/* Recent docs skeleton */}
-          <div className="card p-6">
+          <div className="card p-5 sm:p-6">
             <div className="h-6 bg-gray-200 rounded w-40 mb-4" />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div key={i} className="h-28 bg-gray-50 rounded-xl border border-gray-100" />
               ))}
@@ -144,19 +144,19 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8 animate-fade-in">
+    <div className="p-4 sm:p-6 lg:p-8 animate-fade-in max-w-7xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
           สวัสดี, {firstName} 👋
         </h1>
-        <p className="text-gray-500 mt-1">
+        <p className="text-gray-500 mt-1 text-xs sm:text-sm">
           ยินดีต้อนรับกลับสู่ NoteNow
         </p>
       </div>
 
-      {/* Stats Cards — 3 cards (ไม่มีบันทึกทั้งหมด) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+      {/* Stats Cards — 3 cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-6 sm:mb-8">
         <StatCard
           title="เอกสารทั้งหมด"
           value={stats.documents}
@@ -281,7 +281,7 @@ export default function DashboardPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {recentDocs.map((doc, idx) => (
               <Link
                 key={doc.document_id}

@@ -419,17 +419,17 @@ export default function DocumentsPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8 animate-fade-in max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 animate-fade-in max-w-7xl mx-auto">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2.5">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2.5">
             <span className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm font-bold">
               PDF
             </span>
             เอกสารที่เชื่อมต่อ
           </h1>
-          <p className="text-gray-500 mt-1 text-sm">
+          <p className="text-gray-500 mt-1 text-xs sm:text-sm">
             จัดการและจดบันทึกลงบนไฟล์ PDF จาก Google Drive ของคุณ
           </p>
         </div>
@@ -871,7 +871,7 @@ export default function DocumentsPage() {
                         );
                         e.dataTransfer.effectAllowed = "move";
                       }}
-                      className="p-3.5 sm:px-5 sm:py-3.5 flex items-center justify-between gap-4 hover:bg-gray-50/80 transition-colors group cursor-grab active:cursor-grabbing"
+                      className="p-3 sm:px-5 sm:py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 hover:bg-gray-50/80 transition-colors group cursor-grab active:cursor-grabbing"
                     >
                       {/* Left: PDF Icon + Name + Meta */}
                       <div className="flex items-center gap-3.5 min-w-0 flex-1">
@@ -932,7 +932,7 @@ export default function DocumentsPage() {
                       </div>
 
                       {/* Right: Actions */}
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <div className="flex items-center justify-end sm:justify-start gap-1.5 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
                         <Link
                           href={`/dashboard/documents/${doc.document_id}`}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors"

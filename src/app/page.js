@@ -23,22 +23,22 @@ export default function HomePage() {
       </div>
 
       {/* Navbar */}
-      <nav className="relative z-10 flex items-center justify-between px-6 lg:px-12 py-5">
-        <div className="flex items-center gap-3">
+      <nav className="relative z-10 flex items-center justify-between px-4 sm:px-6 lg:px-12 py-4 sm:py-5">
+        <div className="flex items-center gap-2.5 sm:gap-3">
           <div
-            className="w-9 h-9 rounded-lg flex items-center justify-center"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0"
             style={{ background: "linear-gradient(135deg, #818cf8, #6366f1)" }}
           >
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
           </div>
-          <span className="text-white font-semibold text-lg">NoteNow</span>
+          <span className="text-white font-semibold text-base sm:text-lg">NoteNow</span>
         </div>
         <Link
           href="/login"
-          className="btn btn-secondary text-sm"
+          className="btn btn-secondary text-xs sm:text-sm px-3.5 sm:px-5 py-2 sm:py-2.5"
           id="btn-nav-login"
         >
           เข้าสู่ระบบ
@@ -46,15 +46,15 @@ export default function HomePage() {
       </nav>
 
       {/* Hero */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 pt-20 pb-32 lg:pt-32 lg:pb-40">
-        <div className="animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 text-white/80 text-sm mb-6 border border-white/10">
+      <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 sm:px-6 pt-14 pb-20 sm:pt-20 sm:pb-32 lg:pt-32 lg:pb-40">
+        <div className="animate-fade-in w-full max-w-4xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 text-white/80 text-xs sm:text-sm mb-6 border border-white/10">
             <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse-soft" />
             ระบบพร้อมใช้งาน
           </div>
 
-          <h1 className="text-4xl lg:text-6xl font-bold text-white leading-tight max-w-3xl mx-auto">
-            จดบันทึกและ
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight max-w-3xl mx-auto">
+            จดบันทึกและ{" "}
             <span
               className="bg-clip-text text-transparent"
               style={{ backgroundImage: "linear-gradient(135deg, #818cf8, #2dd4bf)" }}
@@ -65,15 +65,15 @@ export default function HomePage() {
             ด้วยปัญญาประดิษฐ์
           </h1>
 
-          <p className="text-lg text-white/60 mt-6 max-w-xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-lg text-white/70 mt-4 sm:mt-6 max-w-xl mx-auto leading-relaxed px-2">
             เปิด PDF จาก Google Drive จดบันทึกบนเอกสาร
             และสรุปเนื้อหาทั้งเล่มด้วย Gemini AI ในคลิกเดียว
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 sm:mt-10">
             <Link
               href="/login"
-              className="btn btn-primary text-base px-8 py-3.5"
+              className="btn btn-primary text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-3.5 w-full sm:w-auto"
               id="btn-hero-start"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -86,7 +86,7 @@ export default function HomePage() {
         </div>
 
         {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-20 max-w-4xl w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 mt-16 sm:mt-20 max-w-4xl w-full">
           <FeatureCard
             icon={
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

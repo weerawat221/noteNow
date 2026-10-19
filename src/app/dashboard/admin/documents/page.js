@@ -173,7 +173,7 @@ export default function AdminDocumentsPage() {
   });
 
   return (
-    <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6 animate-fade-in">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 animate-fade-in">
       {/* Toast Alert */}
       {toast && (
         <div
@@ -199,13 +199,13 @@ export default function AdminDocumentsPage() {
               &larr; กลับหน้าแดชบอร์ด
             </Link>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1 flex items-center gap-2.5">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 flex items-center gap-2.5">
             <span className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm font-bold">
               📁
             </span>
             จัดการข้อมูลไฟล์เอกสารของผู้ใช้ทั้งหมด
           </h1>
-          <p className="text-gray-500 text-sm mt-0.5">
+          <p className="text-gray-500 text-xs sm:text-sm mt-0.5">
             ค้นหา กรอง และจัดเรียงไฟล์เอกสารจาก Google Drive พร้อมความสามารถในการแก้ไขชื่อและยกเลิกการเชื่อมต่อ
           </p>
         </div>

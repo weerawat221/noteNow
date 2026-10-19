@@ -1270,15 +1270,15 @@ export default function PdfViewerAnnotator({
   return (
     <div className="flex flex-col h-[calc(100vh-53px)] bg-gray-100 overflow-hidden select-none">
       {/* Top Toolbar */}
-      <div className="bg-white border-b border-gray-200 px-4 py-2 flex flex-wrap items-center justify-between gap-3 shadow-sm z-20">
+      <div className="bg-white border-b border-gray-200 px-2 sm:px-4 py-2 flex items-center justify-between gap-2 overflow-x-auto scrollbar-none shadow-sm z-20 shrink-0">
         {/* Left: Page Navigation + Undo/Redo */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 shrink-0">
           {/* Page Navigator */}
-          <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-xl p-1">
+          <div className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-xl p-1">
             <button
               onClick={() => jumpToPage(Math.max(1, currentPage - 1))}
               disabled={currentPage <= 1}
-              className="p-1.5 rounded-lg hover:bg-white text-gray-700 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+              className="p-1 sm:p-1.5 rounded-lg hover:bg-white text-gray-700 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
               title="หน้าก่อนหน้า"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1286,14 +1286,14 @@ export default function PdfViewerAnnotator({
               </svg>
             </button>
 
-            <span className="text-xs font-semibold px-2 text-gray-700">
+            <span className="text-xs font-semibold px-1 sm:px-2 text-gray-700 whitespace-nowrap">
               {currentPage} / {numPages || 1}
             </span>
 
             <button
               onClick={() => jumpToPage(Math.min(numPages, currentPage + 1))}
               disabled={currentPage >= numPages}
-              className="p-1.5 rounded-lg hover:bg-white text-gray-700 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+              className="p-1 sm:p-1.5 rounded-lg hover:bg-white text-gray-700 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
               title="หน้าถัดไป"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1303,11 +1303,11 @@ export default function PdfViewerAnnotator({
           </div>
 
           {/* Undo / Redo Buttons */}
-          <div className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-xl p-1">
+          <div className="flex items-center gap-0.5 sm:gap-1 bg-gray-50 border border-gray-200 rounded-xl p-1">
             <button
               onClick={handleUndo}
               disabled={undoStack.length === 0}
-              className="p-1.5 rounded-lg text-gray-700 hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition-colors flex items-center gap-1"
+              className="p-1 sm:p-1.5 rounded-lg text-gray-700 hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition-colors flex items-center gap-1 cursor-pointer"
               title="เลิกทำ (Ctrl+Z)"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1318,7 +1318,7 @@ export default function PdfViewerAnnotator({
             <button
               onClick={handleRedo}
               disabled={redoStack.length === 0}
-              className="p-1.5 rounded-lg text-gray-700 hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition-colors flex items-center gap-1"
+              className="p-1 sm:p-1.5 rounded-lg text-gray-700 hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition-colors flex items-center gap-1 cursor-pointer"
               title="ทำซ้ำ (Ctrl+Y)"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1329,76 +1329,76 @@ export default function PdfViewerAnnotator({
         </div>
 
         {/* Center: Annotation Tools */}
-        <div className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-xl p-1">
+        <div className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-xl p-1 shrink-0">
           {/* Tool: Select */}
           <button
             onClick={() => handleSelectTool("select")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
               activeTool === "select"
                 ? "bg-white text-indigo-700 shadow-sm font-semibold"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             }`}
             title="เครื่องมือเลือกและเคลื่อนย้าย"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
             </svg>
-            เลือก
+            <span className="hidden sm:inline">เลือก</span>
           </button>
 
           {/* Tool: Draw (D) */}
           <button
             onClick={() => handleSelectTool("draw")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
               activeTool === "draw"
                 ? "bg-white text-indigo-700 shadow-sm font-semibold"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             }`}
             title="วาดเขียนด้วยปากกา (D - Drawing)"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
             </svg>
-            ปากกา
+            <span className="hidden sm:inline">ปากกา</span>
           </button>
 
           {/* Tool: Text (T) */}
           <button
             onClick={() => handleSelectTool("text")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
               activeTool === "text"
                 ? "bg-white text-indigo-700 shadow-sm font-semibold"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             }`}
             title="พิมพ์ข้อความ (T - Text)"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M12 6v14m-4 0h8" />
             </svg>
-            ข้อความ
+            <span className="hidden sm:inline">ข้อความ</span>
           </button>
 
           {/* Tool: Highlight (H) */}
           <button
             onClick={() => handleSelectTool("highlight")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
               activeTool === "highlight"
                 ? "bg-white text-amber-700 shadow-sm font-semibold"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             }`}
             title="ไฮไลต์ข้อความ (H - Highlight)"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
             </svg>
-            ไฮไลต์
+            <span className="hidden sm:inline">ไฮไลต์</span>
           </button>
 
           {/* Delete tool button */}
           {selectedObject && (
             <button
               onClick={handleDeleteSelected}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-red-50 text-red-600 hover:bg-red-100 transition-colors animate-fade-in cursor-pointer"
+              className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-red-50 text-red-600 hover:bg-red-100 transition-colors animate-fade-in cursor-pointer"
               title={`ลบรายการที่เลือก${selectedCount > 1 ? ` ทั้ง ${selectedCount} รายการพร้อมกัน` : ""} (Delete)`}
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1410,9 +1410,9 @@ export default function PdfViewerAnnotator({
         </div>
 
         {/* Color Palette & Stroke Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Colors */}
-          <div className="flex items-center gap-1.5 p-1 bg-gray-50 border border-gray-200 rounded-xl">
+          <div className="flex items-center gap-1 sm:gap-1.5 p-1 bg-gray-50 border border-gray-200 rounded-xl">
             {(selectedType === "H" || (activeTool === "highlight" && !selectedType)
               ? HIGHLIGHT_COLORS
               : DRAW_COLORS
@@ -1420,7 +1420,7 @@ export default function PdfViewerAnnotator({
               <button
                 key={c}
                 onClick={() => handleChangeColor(c)}
-                className={`w-5 h-5 rounded-full border transition-transform cursor-pointer ${
+                className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border transition-transform cursor-pointer ${
                   currentColor === c ? "scale-125 border-gray-900 shadow-sm" : "border-transparent hover:scale-110"
                 }`}
                 style={{ backgroundColor: c }}
@@ -1431,12 +1431,12 @@ export default function PdfViewerAnnotator({
 
           {/* Stroke Width Selector (for Draw mode) */}
           {activeTool === "draw" && (
-            <div className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-xl p-1">
+            <div className="flex items-center gap-0.5 sm:gap-1 bg-gray-50 border border-gray-200 rounded-xl p-1">
               {[2, 4, 6].map((w) => (
                 <button
                   key={w}
                   onClick={() => handleChangeStrokeWidth(w)}
-                  className={`px-2 py-1 rounded-md text-[11px] font-semibold ${
+                  className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-[10px] sm:text-[11px] font-semibold cursor-pointer ${
                     strokeWidth === w ? "bg-white text-indigo-700 shadow-sm" : "text-gray-500 hover:text-gray-800"
                   }`}
                 >
@@ -1447,25 +1447,25 @@ export default function PdfViewerAnnotator({
           )}
         </div>
 
-        {/* Right: Zoom & AI Summary Button */}
-        <div className="flex items-center gap-2">
+        {/* Right: Zoom & Action Buttons */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Zoom controls */}
-          <div className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-xl p-1 text-xs">
+          <div className="hidden sm:flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-xl p-1 text-xs">
             <button
               onClick={() => setScale((s) => Math.max(0.6, s - 0.15))}
-              className="p-1 rounded hover:bg-white text-gray-600 transition-colors"
+              className="p-1 rounded hover:bg-white text-gray-600 transition-colors cursor-pointer"
               title="ย่อ"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
               </svg>
             </button>
-            <span className="w-12 text-center font-medium text-gray-700">
+            <span className="w-10 sm:w-12 text-center font-medium text-gray-700">
               {Math.round(scale * 100)}%
             </span>
             <button
               onClick={() => setScale((s) => Math.min(2.5, s + 0.15))}
-              className="p-1 rounded hover:bg-white text-gray-600 transition-colors"
+              className="p-1 rounded hover:bg-white text-gray-600 transition-colors cursor-pointer"
               title="ขยาย"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1478,36 +1478,38 @@ export default function PdfViewerAnnotator({
           {onOpenNotesPanel && (
             <button
               onClick={onOpenNotesPanel}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold shadow-2xs transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border text-xs font-semibold shadow-2xs transition-all cursor-pointer whitespace-nowrap ${
                 activePanel === "notes"
                   ? "bg-indigo-50 border-indigo-400 text-indigo-700 ring-2 ring-indigo-200"
                   : "bg-white hover:bg-gray-50 border-gray-200 text-gray-700 hover:border-indigo-300"
               }`}
-              title={activePanel === "notes" ? "ปิดแผงโน้ตทั้งหมด" : "ดูโน้ตทั้งหมดในเอกสาร (แบ่งครึ่งจอ)"}
+              title={activePanel === "notes" ? "ปิดแผงโน้ตทั้งหมด" : "ดูโน้ตทั้งหมดในเอกสาร"}
               id="btn-open-notes-panel-toolbar"
             >
-              <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
-              <span>โน้ตทั้งหมด</span>
+              <span className="hidden md:inline">โน้ตทั้งหมด</span>
+              <span className="md:hidden">โน้ต</span>
             </button>
           )}
 
           {/* AI Summary Button */}
           <button
             onClick={onOpenAiSummary}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all hover:shadow cursor-pointer ${
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-semibold shadow-sm transition-all hover:shadow cursor-pointer whitespace-nowrap ${
               activePanel === "summary"
                 ? "bg-purple-800 text-white ring-2 ring-purple-300"
                 : "bg-purple-600 hover:bg-purple-700 text-white"
             }`}
-            title={activePanel === "summary" ? "ปิดแผงสรุป AI" : "เปิดแผงสรุปเนื้อหาด้วย AI (แบ่งครึ่งจอ)"}
+            title={activePanel === "summary" ? "ปิดแผงสรุป AI" : "เปิดแผงสรุปเนื้อหาด้วย AI"}
             id="btn-ai-summary"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            <span>สรุปเนื้อหาด้วย AI</span>
+            <span className="hidden md:inline">สรุปเนื้อหาด้วย AI</span>
+            <span className="md:hidden">สรุป AI</span>
           </button>
         </div>
       </div>

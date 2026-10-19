@@ -62,7 +62,7 @@ function LoginContent() {
 
       {/* Login Card */}
       <div className="relative w-full max-w-md animate-fade-in">
-        <div className="glass rounded-2xl p-8 shadow-lg" style={{ background: "rgba(255,255,255,0.95)" }}>
+        <div className="glass rounded-2xl p-6 sm:p-8 shadow-lg" style={{ background: "rgba(255,255,255,0.95)" }}>
           {/* Logo & Title */}
           <div className="text-center mb-8">
             <div

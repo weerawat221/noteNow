@@ -243,31 +243,31 @@ export default function LinkDocumentModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in overscroll-contain"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in overscroll-contain"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose?.();
       }}
     >
       <div
-        className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">เชื่อมต่อเอกสารจาก Google Drive</h2>
+              <h2 className="text-base sm:text-lg font-bold text-gray-900">เชื่อมต่อเอกสารจาก Google Drive</h2>
               <p className="text-xs text-gray-500">เลือกไฟล์ PDF หรือวางลิงก์เพื่อนำมาเปิดอ่านและจดบันทึก</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+            className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -276,7 +276,7 @@ export default function LinkDocumentModal({
         </div>
 
         {/* Folder Selection Bar */}
-        <div className="px-6 py-2.5 bg-gray-50/70 border-b border-gray-100 flex items-center gap-3 text-sm">
+        <div className="px-4 sm:px-6 py-2.5 bg-gray-50/70 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-sm">
           <span className="text-gray-600 font-medium text-xs whitespace-nowrap">จัดเก็บลงในโฟลเดอร์:</span>
           <select
             value={selectedFolderId}
@@ -293,7 +293,7 @@ export default function LinkDocumentModal({
         </div>
 
         {/* Tab Controls */}
-        <div className="px-6 pt-3 border-b border-gray-100 flex gap-6">
+        <div className="px-4 sm:px-6 pt-3 border-b border-gray-100 flex gap-4 sm:gap-6">
           <button
             onClick={() => setActiveTab("browse")}
             className={`pb-2.5 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
@@ -555,8 +555,8 @@ export default function LinkDocumentModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-          <p className="text-xs text-gray-400">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3">
+          <p className="text-2xs sm:text-xs text-gray-400 text-center sm:text-left">
             * ไฟล์จะถูกสตรีมเพื่ออ่านและจดบันทึก โดยไม่คัดลอกไฟล์ขึ้นระบบ
           </p>
           <div className="flex items-center gap-3">

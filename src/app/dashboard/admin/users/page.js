@@ -144,7 +144,7 @@ export default function AdminUsersPage() {
   });
 
   return (
-    <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6 animate-fade-in">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 animate-fade-in">
       {/* Toast Alert */}
       {toast && (
         <div
@@ -170,13 +170,13 @@ export default function AdminUsersPage() {
               &larr; กลับหน้าแดชบอร์ด
             </Link>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1 flex items-center gap-2.5">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 flex items-center gap-2.5">
             <span className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm">
               👥
             </span>
             จัดการข้อมูลส่วนตัวผู้ใช้และสถานะ Gemini API Key
           </h1>
-          <p className="text-gray-500 text-sm mt-0.5">
+          <p className="text-gray-500 text-xs sm:text-sm mt-0.5">
             ดูรายชื่อ แก้ไขชื่อ รูปโปรไฟล์ ตรวจสอบ Gemini Key และระงับ/ยกเลิกระงับการเข้าสู่ระบบ
           </p>
         </div>

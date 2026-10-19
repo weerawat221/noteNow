@@ -71,7 +71,7 @@ export default function AdminDashboardView() {
   };
 
   return (
-    <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8 animate-fade-in">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 sm:space-y-8 animate-fade-in">
       {/* Header & Date Range Filter */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -81,16 +81,16 @@ export default function AdminDashboardView() {
             </span>
             <span className="text-xs text-gray-400">ระบบจัดการผู้ดูแลระบบ</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">
             รายงานสถิติและภาพรวมระบบ NoteNow
           </h1>
-          <p className="text-gray-500 text-sm mt-0.5">
+          <p className="text-gray-500 text-xs sm:text-sm mt-0.5">
             ติดตามการใช้งานระบบ สถิติผู้ใช้งาน เอกสาร Google Drive และการสรุปเนื้อหาด้วย AI
           </p>
         </div>
 
         {/* Date Range Selector */}
-        <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-200 shadow-2xs self-start sm:self-auto">
+        <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-200 shadow-2xs self-start sm:self-auto overflow-x-auto max-w-full scrollbar-none">
           {[
             { id: "7d", label: "7 วัน" },
             { id: "14d", label: "14 วัน" },

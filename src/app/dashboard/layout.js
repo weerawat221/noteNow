@@ -42,9 +42,9 @@ export default async function DashboardLayout({ children }) {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex flex-col lg:flex-row h-screen overflow-hidden">
       <Sidebar user={enrichedUser} />
-      <main className="flex-1 overflow-y-auto bg-gray-50">
+      <main className="flex-1 overflow-y-auto bg-gray-50 min-w-0">
         {children}
       </main>
     </div>

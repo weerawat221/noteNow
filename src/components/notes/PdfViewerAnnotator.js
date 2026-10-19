@@ -21,6 +21,25 @@ export default function PdfViewerAnnotator({
   const [scale, setScale] = useState(1.2);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [pageDimensions, setPageDimensions] = useState({ width: 595, height: 842 });
+
+  const scaleRef = useRef(scale);
+  scaleRef.current = scale;
+  const pinchRef = useRef({
+    isPinching: false,
+    startDist: 0,
+    startScale: 1.2,
+    startMid: { x: 0, y: 0 },
+    lastMid: { x: 0, y: 0 },
+    scaleRatio: 1,
+  });
+  const panRef = useRef({
+    isPanning: false,
+    startX: 0,
+    startY: 0,
+    scrollLeft: 0,
+    scrollTop: 0,
+  });
 
   // Tools: 'select' | 'draw' | 'text' | 'highlight'
   const [activeTool, setActiveTool] = useState("select");
@@ -83,6 +102,32 @@ export default function PdfViewerAnnotator({
           setPdfDoc(pdf);
           setNumPages(pdf.numPages);
           setCurrentPage(1);
+
+          // คำนวณขนาดหน้าและตั้งค่า Scale อัตโนมัติให้พอดีกับหน้าจอมือถือ (Auto-fit on mobile)
+          try {
+            const page1 = await pdf.getPage(1);
+            const unscaledViewport = page1.getViewport({ scale: 1.0 });
+            const dims = {
+              width: unscaledViewport.width || 595,
+              height: unscaledViewport.height || 842,
+            };
+            setPageDimensions(dims);
+
+            if (typeof window !== "undefined") {
+              const screenW = window.innerWidth;
+              const containerW = scrollContainerRef.current?.clientWidth || screenW;
+              if (screenW < 768) {
+                const padding = screenW < 640 ? 16 : 32;
+                const availableW = Math.max(260, containerW - padding);
+                const fitScale = Number((availableW / dims.width).toFixed(2));
+                if (fitScale > 0) {
+                  setScale(Math.min(2.0, Math.max(0.35, fitScale)));
+                }
+              }
+            }
+          } catch (dimErr) {
+            console.warn("Could not read page 1 dimensions for auto-fit:", dimErr);
+          }
         }
       } catch (err) {
         console.error("PDF load error:", err);
@@ -773,6 +818,197 @@ export default function PdfViewerAnnotator({
     }, 600);
   }
 
+  // ปรับขนาดเอกสารให้พอดีกับความกว้างหน้าจอมือถือ/คอนเทนเนอร์ (Fit to Width)
+  const handleFitToWidth = useCallback(() => {
+    if (!pdfDoc) return;
+    const screenW = typeof window !== "undefined" ? window.innerWidth : 800;
+    const containerW = scrollContainerRef.current?.clientWidth || screenW;
+    const padding = screenW < 640 ? 16 : 32;
+    const availableW = Math.max(240, containerW - padding);
+    const baseW = pageDimensions?.width || 595;
+    const fitScale = Number((availableW / baseW).toFixed(2));
+    setScale(Math.min(2.5, Math.max(0.35, fitScale)));
+  }, [pdfDoc, pageDimensions]);
+
+  // ตรวจสอบว่า Event Target อยู่นอกกรอบหน้าเอกสารหรือไม่
+  function isOutsideDocument(target) {
+    if (!target) return false;
+    if (target.closest("[data-page-num]")) return false;
+    if (target.closest("button, a, input, select, textarea, .z-20, .z-30")) return false;
+    return true;
+  }
+
+  // รองรับ 2 นิ้ว Pinch-to-Zoom และการลากเลื่อนหน้าจอนอกกรอบเอกสาร (Background drag-to-pan)
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    // --- Touch Handlers (Capture phase เพื่อดักจับ 2-finger ก่อน Fabric) ---
+    function handleTouchStart(e) {
+      if (e.touches.length === 2) {
+        // Intercept 2-finger touch for pinch-to-zoom & pan
+        e.preventDefault();
+        e.stopPropagation();
+
+        panRef.current.isPanning = false;
+
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+        const midX = (t1.clientX + t2.clientX) / 2;
+        const midY = (t1.clientY + t2.clientY) / 2;
+
+        pinchRef.current = {
+          isPinching: true,
+          startDist: dist,
+          startScale: scaleRef.current,
+          startMid: { x: midX, y: midY },
+          lastMid: { x: midX, y: midY },
+          scaleRatio: 1,
+        };
+        return;
+      }
+
+      if (e.touches.length === 1 && isOutsideDocument(e.target)) {
+        // สัมผัส 1 นิ้วบนพื้นที่นอกกรอบเอกสาร -> เริ่มเลื่อนหน้าจอ (Pan)
+        const t = e.touches[0];
+        panRef.current = {
+          isPanning: true,
+          startX: t.clientX,
+          startY: t.clientY,
+          scrollLeft: container.scrollLeft,
+          scrollTop: container.scrollTop,
+        };
+      }
+    }
+
+    function handleTouchMove(e) {
+      if (pinchRef.current.isPinching && e.touches.length === 2) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+        const midX = (t1.clientX + t2.clientX) / 2;
+        const midY = (t1.clientY + t2.clientY) / 2;
+
+        const startDist = pinchRef.current.startDist || dist;
+        const ratio = Math.max(0.3, Math.min(3.5, dist / startDist));
+        pinchRef.current.scaleRatio = ratio;
+
+        // เลื่อนหน้าจอตามจุดกึ่งกลางระหว่าง 2 นิ้ว
+        const dx = midX - pinchRef.current.lastMid.x;
+        const dy = midY - pinchRef.current.lastMid.y;
+        pinchRef.current.lastMid = { x: midX, y: midY };
+
+        container.scrollLeft -= dx;
+        container.scrollTop -= dy;
+
+        // แสดงผลลื่นไหล 60fps ด้วย GPU-accelerated CSS transform
+        pageContainerRefs.current.forEach((el) => {
+          const wrapper = el?.querySelector?.(".page-render-wrapper");
+          if (wrapper) {
+            wrapper.style.transformOrigin = "top center";
+            wrapper.style.transform = `scale(${ratio})`;
+            wrapper.style.transition = "none";
+          }
+        });
+        return;
+      }
+
+      if (panRef.current.isPanning && e.touches.length === 1) {
+        e.preventDefault();
+        const t = e.touches[0];
+        const dx = t.clientX - panRef.current.startX;
+        const dy = t.clientY - panRef.current.startY;
+        container.scrollLeft = panRef.current.scrollLeft - dx;
+        container.scrollTop = panRef.current.scrollTop - dy;
+      }
+    }
+
+    function handleTouchEnd() {
+      if (pinchRef.current.isPinching) {
+        pinchRef.current.isPinching = false;
+        const ratio = pinchRef.current.scaleRatio || 1;
+        const startScale = pinchRef.current.startScale || scaleRef.current;
+
+        // คืนค่า CSS transforms
+        pageContainerRefs.current.forEach((el) => {
+          const wrapper = el?.querySelector?.(".page-render-wrapper");
+          if (wrapper) {
+            wrapper.style.transform = "";
+            wrapper.style.transformOrigin = "";
+            wrapper.style.transition = "";
+          }
+        });
+
+        const newScale = Math.min(3.0, Math.max(0.35, Number((startScale * ratio).toFixed(2))));
+        if (Math.abs(newScale - scaleRef.current) > 0.04) {
+          setScale(newScale);
+        }
+      }
+
+      if (panRef.current.isPanning) {
+        panRef.current.isPanning = false;
+      }
+    }
+
+    // --- Mouse Handlers สำหรับลากเลื่อนบนพื้นหลังนอกเอกสาร (Desktop / Trackpad) ---
+    function handleMouseDown(e) {
+      if (e.button !== 0) return;
+      if (!isOutsideDocument(e.target)) return;
+
+      panRef.current = {
+        isPanning: true,
+        startX: e.clientX,
+        startY: e.clientY,
+        scrollLeft: container.scrollLeft,
+        scrollTop: container.scrollTop,
+      };
+      container.style.cursor = "grabbing";
+      container.style.userSelect = "none";
+    }
+
+    function handleMouseMove(e) {
+      if (!panRef.current.isPanning) return;
+      e.preventDefault();
+      const dx = e.clientX - panRef.current.startX;
+      const dy = e.clientY - panRef.current.startY;
+      container.scrollLeft = panRef.current.scrollLeft - dx;
+      container.scrollTop = panRef.current.scrollTop - dy;
+    }
+
+    function handleMouseUp() {
+      if (panRef.current.isPanning) {
+        panRef.current.isPanning = false;
+        container.style.cursor = "";
+        container.style.userSelect = "";
+      }
+    }
+
+    // ติดตั้ง Event Listeners
+    container.addEventListener("touchstart", handleTouchStart, { capture: true, passive: false });
+    container.addEventListener("touchmove", handleTouchMove, { capture: true, passive: false });
+    container.addEventListener("touchend", handleTouchEnd, { capture: true, passive: false });
+    container.addEventListener("touchcancel", handleTouchEnd, { capture: true, passive: false });
+
+    container.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      container.removeEventListener("touchstart", handleTouchStart, { capture: true });
+      container.removeEventListener("touchmove", handleTouchMove, { capture: true });
+      container.removeEventListener("touchend", handleTouchEnd, { capture: true });
+      container.removeEventListener("touchcancel", handleTouchEnd, { capture: true });
+
+      container.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
+
   // ตอบสนองเมื่อมีการคลิกโน้ตจาก Notes Panel เพื่อกระโดดไปยังหน้านั้น
   useEffect(() => {
     if (targetPage && targetPage >= 1 && targetPage <= numPages) {
@@ -1264,8 +1500,8 @@ export default function PdfViewerAnnotator({
   }, [selectedObject]);
 
   // Compute estimated page height for placeholder
-  const estimatedPageHeight = Math.round((scale * 842)); // A4 height at 72dpi ≈ 842
-  const estimatedPageWidth = Math.round((scale * 595));  // A4 width at 72dpi ≈ 595
+  const estimatedPageHeight = Math.round(scale * (pageDimensions?.height || 842));
+  const estimatedPageWidth = Math.round(scale * (pageDimensions?.width || 595));
 
   return (
     <div className="flex flex-col h-[calc(100vh-53px)] bg-gray-100 overflow-hidden select-none">
@@ -1450,27 +1686,34 @@ export default function PdfViewerAnnotator({
         {/* Right: Zoom & Action Buttons */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Zoom controls */}
-          <div className="hidden sm:flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-xl p-1 text-xs">
+          <div className="flex items-center gap-0.5 sm:gap-1 bg-gray-50 border border-gray-200 rounded-xl p-0.5 sm:p-1 text-xs shrink-0">
             <button
-              onClick={() => setScale((s) => Math.max(0.6, s - 0.15))}
+              onClick={() => setScale((s) => Math.max(0.35, Number((s - 0.15).toFixed(2))))}
               className="p-1 rounded hover:bg-white text-gray-600 transition-colors cursor-pointer"
-              title="ย่อ"
+              title="ย่อขนาด"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
               </svg>
             </button>
-            <span className="w-10 sm:w-12 text-center font-medium text-gray-700">
+            <span className="w-9 sm:w-12 text-center font-medium text-gray-700 text-[11px] sm:text-xs">
               {Math.round(scale * 100)}%
             </span>
             <button
-              onClick={() => setScale((s) => Math.min(2.5, s + 0.15))}
+              onClick={() => setScale((s) => Math.min(3.0, Number((s + 0.15).toFixed(2))))}
               className="p-1 rounded hover:bg-white text-gray-600 transition-colors cursor-pointer"
-              title="ขยาย"
+              title="ขยายขนาด"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
+            </button>
+            <button
+              onClick={handleFitToWidth}
+              className="px-1.5 py-0.5 rounded hover:bg-white text-indigo-600 hover:text-indigo-700 font-medium text-[10px] sm:text-[11px] transition-colors cursor-pointer border border-transparent hover:border-gray-200"
+              title="ปรับขนาดเอกสารให้พอดีกับความกว้างหน้าจอ"
+            >
+              พอดีจอ
             </button>
           </div>
 
@@ -1518,7 +1761,7 @@ export default function PdfViewerAnnotator({
       <div className="flex-1 flex overflow-hidden relative">
         <div
           ref={scrollContainerRef}
-          className="flex-1 overflow-auto p-6 flex flex-col items-center gap-4 relative w-full"
+          className="flex-1 overflow-auto p-2 sm:p-4 md:p-6 flex flex-col items-center gap-3 sm:gap-4 relative w-full touch-pan-x touch-pan-y"
         >
           {loading ? (
             <div className="py-24 text-center text-gray-400">
@@ -1570,9 +1813,9 @@ export default function PdfViewerAnnotator({
           </div>
         )}
 
-        {/* Mini Page Navigator (right edge) */}
+        {/* Mini Page Navigator (right edge) - hidden on mobile to avoid overlapping content */}
         {numPages > 1 && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-1 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl p-1.5 shadow-lg max-h-[60vh] overflow-y-auto">
+          <div className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 z-20 flex-col gap-1 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl p-1.5 shadow-lg max-h-[60vh] overflow-y-auto">
             {Array.from({ length: numPages }, (_, i) => i + 1).map((pageNum) => (
               <button
                 key={pageNum}
